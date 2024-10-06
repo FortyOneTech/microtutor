@@ -1,0 +1,26 @@
+{
+  "name": "microtutor-client",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npm run copy-env && PORT=3000 react-scripts start",
+    "copy-env": "cp .env.example .env",
+    "build": "npm run copy-env && react-scripts build",
+    "run": "npm run copy-env && react-scripts start",
+    "test": "npm run copy-env && react-scripts test",
+    "eject": "npm run copy-env && react-scripts eject"
+  },
+  "author": "MicroTutor",
+  "license": "MIT",
+  "dependencies": {
+    "@stripe/react-stripe-js": "^1.7.0",
+    "@stripe/stripe-js": "^1.11.0",
+    "axios": "^0.21.1",
+    "firebase": "^8.6.8",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.3"
+  },
+  "devDependencies": {}
+}

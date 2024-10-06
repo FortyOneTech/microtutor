@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - JWT_SECRET=${JWT_SECRET}
+      - AUTH_SERVICE_URL=http://auth-service:5001
+      - USER_SERVICE_URL=http://user-service:5002
+      - AI_SERVICE_URL=http://ai-service:5003
+      - PAYMENT_SERVICE_URL=http://payment-service:5004
+    depends_on:
+      - auth-service
+      - user-service
+      - ai-service
+      - payment-service
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - MONGODB_URI=mongodb://mongo:27017/microtutor
+      - JWT_SECRET=${JWT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+    depends_on:
+      - mongo
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "5002:5002"
+    environment:
+      - PORT=5002
+      - MONGODB_URI=mongodb://mongo:27017/microtutor
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - mongo
+
+  ai-service:
+    build: ./ai-service
+    ports:
+      - "5003:5003"
+    environment:
+      - PORT=5003
+      - JWT_SECRET=${JWT_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - auth-service
+
+  payment-service:
+    build: ./payment-service
+    ports:
+      - "5004:5004"
+    environment:
+      - PORT=5004
+      - MONGODB_URI_PAYMENT=mongodb://mongo:27017/microtutor_payment
+      - JWT_SECRET=${JWT_SECRET}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - STRIPE_BASIC_PRICE_ID=${STRIPE_BASIC_PRICE_ID}
+      - STRIPE_PRO_PRICE_ID=${STRIPE_PRO_PRICE_ID}
+      - CLIENT_URL=${CLIENT_URL}
+    depends_on:
+      - mongo
+
+  client:
+    build: ./client
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=${REACT_APP_API_URL}
+      - REACT_APP_FIREBASE_API_KEY=${REACT_APP_FIREBASE_API_KEY}
+      - REACT_APP_FIREBASE_AUTH_DOMAIN=${REACT_APP_FIREBASE_AUTH_DOMAIN}
+      - REACT_APP_FIREBASE_PROJECT_ID=${REACT_APP_FIREBASE_PROJECT_ID}
+      - REACT_APP_FIREBASE_STORAGE_BUCKET=${REACT_APP_FIREBASE_STORAGE_BUCKET}
+      - REACT_APP_FIREBASE_MESSAGING_SENDER_ID=${REACT_APP_FIREBASE_MESSAGING_SENDER_ID}
+      - REACT_APP_FIREBASE_APP_ID=${REACT_APP_FIREBASE_APP_ID}
+      - REACT_APP_STRIPE_PUBLISHABLE_KEY=${REACT_APP_STRIPE_PUBLISHABLE_KEY}
+    depends_on:
+      - api-gateway
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
